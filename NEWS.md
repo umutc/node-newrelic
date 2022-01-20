@@ -1,3 +1,121 @@
+### v8.7.1 (2022-01-18)
+
+* Bumped @newrelic/aws-sdk to ^4.1.1.
+
+* Upgraded `@newrelic/test-utilities` to ^6.3.0.
+
+  Includes `helpers.getShim` so sub packages properly execute.
+
+* Resolved dependabot and certain npm audit warnings.
+
+* Automation and CI improvements:
+  * Added a script to be used by agent developers to add a PR to `docs-website` after the release of agent.
+  * Changed the trigger for post release jobs.
+  * Updated the `create-release-tag` script to pass in workflows to check before creating tag.
+    * Fixed `create-release-tag` to properly filter out all async workflow run checks
+    * Updated agent release to pass in a different list of workflows vs the default
+  * Fixed release creation reusable workflow by passing in repo to `bin/create-release-tag.js` and `bin/create-github-release.js`.
+  * Added `workflow_dispatch` to Agent Post Release workflow for manual testing.
+  * Added a reusable workflow to create a release tag, publish to NPM and publish a GitHub release.
+    * Updated agent release workflow to reference reusable workflow.
+    * Added a new workflow to update RPM and publish API docs on a published release event type.
+
+
+### v8.7.0 (2022-01-04)
+
+* Updated `onResolved` instrumentation hook to only be called the first time we see a specific module filepath resolved.
+
+* Removed `tracer.segment` in place of direct usage of context manager.
+
+* Fixed an issue where multiple calls to `instrumentLoadedModule` resulted in re-instrumenting the same module.
+
+* Fixed issue where `instrumentLoadedModule` would return `true` even if the instrumentation handler indicated it did not apply instrumentation.
+
+* Added support metrics for tracking when instrumentation was applied per module.
+
+  * `Supportability/Features/Instrumentation/OnResolved/<module-name>`
+  * `Supportability/Features/Instrumentation/OnResolved/<module-name>/Version/<major version>`
+  * `Supportability/Features/Instrumentation/OnRequire/<module-name>`
+  * `Supportability/Features/Instrumentation/OnRequire/<module-name>/Version/<major version>`
+
+* Fixed issue where expected status code ranges would not be parsed until ignored status codes were also defined.
+
+* Added an input `changelog_file` to pass in name of changelog.  This defaults to `NEWS.md` but some repos use `CHANGELOG.md`
+
+* Abstracted `bin/prepare-release.js` to work against other repositories.
+
+* Added reusable prepare-release workflow that can be referenced in all other newrelic Node.js repositories.
+
+* Updated pending PRs workflow to check all repos the team owns.
+
+* Changed the event type from `pull_request` to `pull_request_target` to allow for auto assign of PRs to the Node.js Engineering Board
+
+* Fixed add to board workflow to properly pass repository secrets into reusable board workflow.
+
+* Changes token used to post issues to org level project board
+
+* Runs versioned tests for external modules against tests defined in the external repository instead of tests published in npm modules.
+
+* Added a reusable workflow to automatically add issues to the Node.js Engineering Board when created.
+
+* Added CI job to update system configurations with new agent version on release.
+
+* Moved `methods.js` under bluebird versioned test folder.
+
+### v8.6.0 (2021-11-17)
+
+* Added `onResolved` instrumentation hook to apply instrumentation prior to module load.
+
+  This hook fires after the module filepath has been resolved just prior to the module being loaded by the CommonJS module loader.
+
+* Fixed issue where `recordConsume` was not binding consumer if it was a promise
+
+* Pinned mongo versioned tests to `<4.2.0` until we can address https://github.com/newrelic/node-newrelic/issues/982
+
+* Introduced a context management API to be used in place of manually calling tracer.segment get/set.
+
+### v8.5.2 (2021-11-09)
+
+* Fixed issue where unhandled promise rejections were not getting logged as errors in a lambda execution
+
+### v8.5.1 (2021-11-03)
+
+* Fixed bug where failure to retrieve CPU/Memory details for certain Linux distros could result in a crash.
+
+  `parseProcCPUInfo` and `parseProcMeminfo` now check for `null` input prior to processing.
+
+* Updated README to favor using `-r` to load the agent vs `require('newrelic')`.
+
+* Updated `@newrelic/test-utilities` to 6.1.1 and applied a global sampling value of 10 for versioned tests.
+
+* Migrated utilization unit tests from mocha to tap.
+
+* Migrated logger unit tests from mocha to tap.
+
+* Cleaned up or added future removal comments for several deprecation warnings.
+
+* Added a script and corresponding CI job that will check for PRs that have been merged and not release and notify the team in a private slack channel.
+
+* Updated the versioned test runner to always run against minor versions.
+
+* Fixed a high severity npm audit failure.
+
+### v8.5.0 (2021-10-12)
+
+* Added full support for Fastify v2 and v3. Fastify instrumentation is now GA.
+  * Removed fastify feature flag.
+  * Instrumented Fastify routes by wrapping `addHook`.
+  * Added middleware mounting for fastify v3.
+  * Fixed capturing of mount point for middleware naming.
+  * Fixed the WebFramework spec definitions for Fastify middleware and route handlers to properly retrieve the IncomingMessage from a request object.
+  * Added proper definition to middleware handlers so that the relationship to consecutive middleware and route handler are siblings and not direct children.
+
+* Added experimental instrumentation for the [undici](https://github.com/nodejs/undici) http client behind a feature flag.
+
+  To enable undici support, add the following into your config: `{ feature_flag: { undici_instrumentation: true } }`.  The support for undici client is Node.js 16.x as it takes advantage of the [diagnostics_channel](https://nodejs.org/dist/latest-v16.x/docs/api/diagnostics_channel.html). Lastly, you must be using [v4.7.0+](https://github.com/nodejs/undici/releases/tag/v4.7.0) of the undici client for any of the instrumentation to work.
+
+  Note: There are currently some state issues if requests to an app are made with keep alive and you have multiple undici requests being made in parallel. In this case, set feature_flag: `{ undici_async_tracking: false }` which avoids these state issues at the cost of some broken segment nesting.
+
 ### v8.4.0 (2021-09-28)
 
 * **Deprecation Warning**: Cross Application Tracing (CAT) has been deprecated and will be removed in a future major release. For applications that explicitly disable Distributed Tracing (DT) to leverage CAT, we recommend migrating to DT to avoid loss of cross-service visibility.

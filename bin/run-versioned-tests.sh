@@ -5,17 +5,21 @@
 
 set -x
 
-VERSIONED_MODE="${VERSIONED_MODE:---major}"
-if [[ $TRAVIS_BRANCH == `git describe --tags --always HEAD` ]]; then
-  VERSIONED_MODE=--minor
-fi
-
+VERSIONED_MODE="${VERSIONED_MODE:---minor}"
+SAMPLES="${SAMPLES:-10}"
 set -f
 directories=()
-if [[ "$1" != '' ]]; then
+if [[ "$1" != '' ]];
+then
   directories=(
     "test/versioned/${1}"
-    "node_modules/@newrelic/${1}/tests/versioned"
+    "test/versioned-external/TEMP_TESTS/${1}"
+    "test/versioned-external/TEMP_TESTS/${1}/tests/versioned"
+  )
+else
+  directories=(
+    "test/versioned/"
+    "test/versioned-external"
   )
 fi
 
@@ -25,7 +29,7 @@ echo "${NPM7}"
 
 if [[ "${NPM7}" = 1 ]];
 then
-  time ./node_modules/.bin/versioned-tests $VERSIONED_MODE -i 2 --all ${directories[@]}
+  time ./node_modules/.bin/versioned-tests $VERSIONED_MODE -i 2 --all --samples $SAMPLES ${directories[@]}
 else
-  time ./node_modules/.bin/versioned-tests $VERSIONED_MODE -i 2 ${directories[@]}
+  time ./node_modules/.bin/versioned-tests $VERSIONED_MODE -i 2 --samples $SAMPLES ${directories[@]}
 fi

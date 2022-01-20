@@ -12,8 +12,17 @@ const git = require('./git-commands')
 
 // Add command line options
 program.option('-b, --branch <branch>', 'release branch', 'main')
-program.option('-o, --repo-owner <repoOwner>', 'repository owner', 'newrelic')
+program.option(
+  '--repo <repo>',
+  'Repo to work against(Defaults to newrelic/node-newrelic)',
+  'newrelic/node-newrelic'
+)
 program.option('-f --force', 'bypass validation')
+program.option(
+  '-w, --workflows <workflows>',
+  'Comma delimited list of workflows to check',
+  'ci-workflow.yml'
+)
 
 async function createReleaseTag() {
   // Parse commandline options inputs
@@ -24,7 +33,8 @@ async function createReleaseTag() {
   console.log('Script running with following options: ', JSON.stringify(options))
 
   const branch = options.branch.replace('refs/heads/', '')
-  const repoOwner = options.repoOwner
+  const [owner, repo] = options.repo.split('/')
+  const workflows = options.workflows.split(',')
 
   if (options.force) {
     console.log('--force set. Skipping validation logic')
@@ -35,14 +45,14 @@ async function createReleaseTag() {
       options.force ||
       ((await validateLocalChanges()) &&
         (await validateCurrentBranch(branch)) &&
-        (await checkWorkflowRun(repoOwner, branch)))
+        (await checkWorkflowRun(owner, repo, branch, workflows)))
 
     if (!isValid) {
       process.exit(1)
     }
 
-    const packagePath = '../package.json'
-    console.log('Extracting new version from package.json here: ')
+    const packagePath = `${process.cwd()}/package.json`
+    console.log(`Extracting new version from ${packagePath}`)
     const packageInfo = require(packagePath)
 
     const version = `v${packageInfo.version}`

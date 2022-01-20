@@ -35,7 +35,7 @@ test('Restify router introspection', function (t) {
     t.notOk(agent.traces.trace, 'should have no transaction trace')
 
     const metrics = agent.metrics._metrics.unscoped
-    t.equal(Object.keys(metrics).length, 1, 'only supportability metrics added to agent collection')
+    t.equal(Object.keys(metrics).length, 4, 'only supportability metrics added to agent collection')
 
     const errors = agent.errors.traceAggregator.errors
     t.equal(errors.length, 0, 'no errors noticed')
@@ -52,7 +52,7 @@ test('Restify router introspection', function (t) {
     const url = 'http://localhost:' + port + '/polling/31337'
     request.get(url, function (error, res, body) {
       t.equal(res.statusCode, 400, 'got expected error')
-      t.deepEqual(body, { status: 'pollpollpoll' }, 'got expected response')
+      t.same(body, { status: 'pollpollpoll' }, 'got expected response')
     })
   })
 })

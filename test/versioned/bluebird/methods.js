@@ -5,12 +5,8 @@
 
 'use strict'
 
-// TODO: seems like this may only be ran by the bluebird versioned test methods.tap.js
-// Confirm and move logic there, if true. If used by multiple but only versioned,
-// move under versioned folder.
-
-const helper = require('../../../lib/agent_helper')
-const testTransactionState = require('./transaction-state')
+const helper = require('../../lib/agent_helper')
+const testTransactionState = require('../../integration/instrumentation/promises/transaction-state')
 const util = require('util')
 
 const runMultiple = testTransactionState.runMultiple
@@ -101,18 +97,19 @@ module.exports = function (t, library, loadLibrary) {
 
     t.test('usage', function (t) {
       testPromiseClassMethod(t, 3, function resolveTest(Promise, name) {
-        const tracer = helper.getAgent().tracer
-        const inTx = !!tracer.segment
+        const contextManager = helper.getContextManager()
+        const inTx = !!contextManager.getContext()
+
         return new Promise(function (resolve) {
           addTask(function () {
-            t.notOk(tracer.segment, name + 'should lose tx')
+            t.notOk(contextManager.getContext(), name + 'should lose tx')
             resolve('foobar ' + name)
           })
         }).then(function (res) {
           if (inTx) {
-            t.ok(tracer.segment, name + 'should return tx')
+            t.ok(contextManager.getContext(), name + 'should return tx')
           } else {
-            t.notOk(tracer.segment, name + 'should not create tx')
+            t.notOk(contextManager.getContext(), name + 'should not create tx')
           }
           t.equal(res, 'foobar ' + name, name + 'should resolve with correct value')
         })

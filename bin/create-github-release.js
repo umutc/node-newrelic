@@ -15,10 +15,14 @@ const DEFAULT_FILE_NAME = 'NEWS.md'
 const TAG_VALID_REGEX = /v\d+\.\d+\.\d+/
 
 program.requiredOption('--tag <tag>', 'tag name to create GitHub release for')
-program.option('--repo-owner <repoOwner>', 'repository owner', 'newrelic')
 program.option(
-  '--release-notes-file <releaseNotesFile>',
-  'path to release notes file',
+  '--repo <repo>',
+  'Repo to work against(Defaults to newrelic/node-newrelic)',
+  'newrelic/node-newrelic'
+)
+program.option(
+  '--changelog <changelog>',
+  'Name of changelog(defaults to NEWS.md)',
   DEFAULT_FILE_NAME
 )
 program.option('-f --force', 'bypass validation')
@@ -30,8 +34,9 @@ async function createRelease() {
   const options = program.opts()
 
   console.log('Script running with following options: ', JSON.stringify(options))
+  const [owner, repo] = options.repo.split('/')
 
-  const github = new Github(options.repoOwner)
+  const github = new Github(owner, repo)
 
   try {
     const tagName = options.tag.replace('refs/tags/', '')
@@ -48,7 +53,7 @@ async function createRelease() {
     }
 
     logStep('Get Release Notes from File')
-    const body = await getReleaseNotes(tagName, options.releaseNotesFile)
+    const body = await getReleaseNotes(tagName, options.changelog)
 
     logStep('Create Release')
     await github.createRelease(tagName, tagName, body)

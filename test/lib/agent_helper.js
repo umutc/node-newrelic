@@ -37,6 +37,7 @@ const helper = (module.exports = {
   SSL_HOST: 'localhost',
   outOfContextQueueInterval,
   getAgent: () => _agent,
+  getContextManager: () => _agent && _agent._contextManager,
 
   /**
    * Set up an agent that won't try to connect to the collector, but also
@@ -158,6 +159,7 @@ const helper = (module.exports = {
     agent.emit('unload')
     shimmer.unpatchModule()
     shimmer.unwrapAll()
+    shimmer.registeredInstrumentations = Object.create(null)
     shimmer.debug = false
 
     // On all versions each agent will add an unhandledRejection handler. This
