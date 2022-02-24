@@ -1,6 +1,6 @@
 {
   "name": "newrelic",
-  "version": "8.7.1",
+  "version": "8.8.0",
   "author": "New Relic Node.js agent team <nodejs@newrelic.com>",
   "license": "Apache-2.0",
   "contributors": [
@@ -136,7 +136,7 @@
     "prepare-test": "npm run ca-gen && npm run ssl && npm run docker-env",
     "lint": "eslint ./*.js lib test bin examples",
     "lint:fix": "eslint --fix, ./*.js lib test bin examples",
-    "public-docs": "npm ci && jsdoc -c ./jsdoc-conf.json --tutorials examples/shim api.js lib/shim/ lib/transaction/handle.js && cp examples/shim/*.png out/",
+    "public-docs": "jsdoc -c ./jsdoc-conf.json --tutorials examples/shim api.js lib/shim/ lib/transaction/handle.js && cp examples/shim/*.png out/",
     "publish-docs": "./bin/publish-docs.sh",
     "services": "./bin/docker-services.sh",
     "smoke": "npm run ssl && time tap test/smoke/**/**/*.tap.js --timeout=180 --no-coverage",
@@ -159,13 +159,13 @@
     "newrelic-naming-rules": "./bin/test-naming-rules.js"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.2.11",
-    "@grpc/proto-loader": "^0.5.6",
+    "@grpc/grpc-js": "^1.5.5",
+    "@grpc/proto-loader": "^0.6.9",
     "@newrelic/aws-sdk": "^4.1.1",
-    "@newrelic/koa": "^6.0.1",
-    "@newrelic/superagent": "^5.0.1",
+    "@newrelic/koa": "^6.1.0",
+    "@newrelic/superagent": "^5.1.0",
     "@tyriar/fibonacci-heap": "^2.0.7",
-    "async": "^3.2.0",
+    "async": "^3.2.3",
     "concat-stream": "^2.0.0",
     "https-proxy-agent": "^5.0.0",
     "json-stringify-safe": "^5.0.0",
@@ -173,7 +173,7 @@
     "semver": "^5.3.0"
   },
   "optionalDependencies": {
-    "@newrelic/native-metrics": "^7.0.1"
+    "@newrelic/native-metrics": "^7.1.1"
   },
   "devDependencies": {
     "@newrelic/eslint-config": "^0.0.3",
